@@ -1,4 +1,5 @@
 ''' This module imports the input information from an input file.'''
+import chip_graph as CG
 
 def load_input(filename, verbose = 0):
 
@@ -47,7 +48,7 @@ def load_input(filename, verbose = 0):
         net_list.append(net_blocks)
 
     # Create the chip object using the loaded information:
-    #new_chip  = chip_cls.chip(num_rows, num_cols, num_cells, num_conns, net_list)
+    new_chip  = CG.chip_graph(num_cells, num_conns, net_list)
 
     # Display the imported data:
     print 'Done.'
@@ -60,8 +61,7 @@ def load_input(filename, verbose = 0):
 
 
 
-    #return new_chip
-    return True
+    return new_chip
 
 if __name__ == "__main__":
 

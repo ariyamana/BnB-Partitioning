@@ -1,11 +1,15 @@
-
-def amend_assignment(current_assignment, node, part):
+def initialize():
+    new_assignment = None
+    cost = None
+    incumbent = {'bisection': new_assignment, 'cost': cost}
+    
+def append_assignment(current_assignment, node, part):
     ''' This function amends a current assignment by adding one node to one of
     the partitions. In order to make sure a new part of the memory is used and
     the recursion algorithm runs flawlessly a for loop is used to make a deep
     copy of the current assignment and then ammending it with the new addition
     '''
-    
+
     # Initialize the new assignment:
     new_assignment = {'left':[], 'right':[]}
 
@@ -19,35 +23,45 @@ def amend_assignment(current_assignment, node, part):
 
     return new_assignment
 
-def BnB(current_assignment, next_node, incumbent):
+def gen_next_node(current_assignment):
+
+
+
+def BnB(current_assignment, next_node, incumbent, chip):
     if next_node == null: #Currently at a leaf
-        if this is the best solution so far:
-            store the current solution
+
+        cost = chip.compute_cost(current_assignment)
+
+        if cost < incumbent['cost']:
+            incumbent = {'bisection': current_assignment, 'cost': cost}
+
         else:
+            '''Bounding -----------------------------------------------------'''
+            # Given a partial solution calculate the lower bound of the current
+            # branch:
+            x_bound = ???
 
-            calculate label x
-
-            if x < incumbent:
-                '''Left'''
+            '''Branching ----------------------------------------------------'''
+            if x_bound < incumbent:
+                '''Left branch'''
                 # Expand the current assignment by appending the next_node to
                 # the left Partition and call it temp_new_assignment:
-                temp_new_assignment = amend_assignment(current_assignment, \
+                temp_new_assignment = append_assignment(current_assignment, \
                 next_node, 'left')
 
-                # Branching:
                 # Find the node after next_node and call it temp_next_node:
+                temp_next_node =
 
                 # Call the BnB with the current updates to the left partition:
                 BnB(temp_new_assignment, temp_next_node, incumbent)
 
 
-                '''Right'''
+                '''Right branch'''
                 # Expand the current assignment by appending the next_node to
                 # the right Partition and call it temp_new_assignment:
-                temp_new_assignment = amend_assignment(current_assignment, \
+                temp_new_assignment = append_assignment(current_assignment, \
                 next_node, 'right')
 
-                # Branching:
                 # Find the node after next_node and call it temp_next_node:
 
                 # Call the BnB with the current updates to the right partition:
