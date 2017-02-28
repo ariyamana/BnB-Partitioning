@@ -2,7 +2,7 @@ def initialize():
     new_assignment = None
     cost = None
     incumbent = {'bisection': new_assignment, 'cost': cost}
-    
+
 def append_assignment(current_assignment, node, part):
     ''' This function amends a current assignment by adding one node to one of
     the partitions. In order to make sure a new part of the memory is used and
@@ -24,8 +24,17 @@ def append_assignment(current_assignment, node, part):
     return new_assignment
 
 def gen_next_node(current_assignment):
+    ''' Based on the following paper:
 
+    W. W. Hager, D. T. Phan, and H. Zhang. An Exact Algorithm for
+    Graph Partitioning. Mathematical Programming, 137(1-2):531–556, 2013.
 
+    The order of visiting nodes can simply be based on the weight of the edges
+    adjacent to that node. Here we can replace this by the degree of the node.
+    '''
+
+def lower_bound():
+    
 
 def BnB(current_assignment, next_node, incumbent, chip):
     if next_node == null: #Currently at a leaf
