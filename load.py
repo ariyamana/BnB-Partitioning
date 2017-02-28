@@ -1,7 +1,5 @@
 ''' This module imports the input information from an input file.'''
 
-import chip_class as chip_cls
-
 def load_input(filename, verbose = 0):
 
     print '='*80
@@ -12,8 +10,6 @@ def load_input(filename, verbose = 0):
     net_blocks = []
     num_cells = 0
     num_conns = 0
-    num_rows  = 0
-    num_cols  = 0
 
     # Openning the input file:
     f = open(filename, "r")
@@ -29,8 +25,6 @@ def load_input(filename, verbose = 0):
 
     num_cells = int(first_line[0])
     num_conns = int(first_line[1])
-    num_rows  = int(first_line[2])
-    num_cols  = int(first_line[3])
 
     # Loop over the 2nd line to the last line of the file to populate the
     # net list info:
@@ -53,20 +47,21 @@ def load_input(filename, verbose = 0):
         net_list.append(net_blocks)
 
     # Create the chip object using the loaded information:
-    new_chip  = chip_cls.chip(num_rows, num_cols, num_cells, num_conns, net_list)
+    #new_chip  = chip_cls.chip(num_rows, num_cols, num_cells, num_conns, net_list)
 
     # Display the imported data:
     print 'Done.'
 
     if verbose == 1:
-        print 'Dimension of the chip: ' , num_rows ,'x',num_cols
         print 'Number of cells = ',num_cells
         print 'Number of nets = ', num_conns
+        print 'Net list:', net_list
         print '.'*80
 
 
 
-    return new_chip
+    #return new_chip
+    return True
 
 if __name__ == "__main__":
 
