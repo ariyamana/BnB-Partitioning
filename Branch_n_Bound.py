@@ -1,9 +1,31 @@
-def initialize():
-    new_assignment = None
-    cost = None
-    incumbent = {'bisection': new_assignment, 'cost': cost}
+def initialize(chip):
 
-def append_assignment(current_assignment, node, part):
+    from random import shuffle
+    from numpy import floor
+
+    temp_list = range(chip.num_nodes)
+
+    shuffle(temp_list)
+
+    half_mark = int(floor((chip.num_nodes)*1.0/2.0))
+
+    new_assignment = {'left': [],'right': []}
+
+    random_assignment = {'left': temp_list[0:half_mark],\
+    'right': temp_list[half_mark:]}
+
+    cost = chip.compute_cost(new_assignment)
+
+    next_node = chip.gen_next_node(None)
+
+    incumbent = {'bisection': random_assignment, 'cost': cost}
+
+    print incumbent
+    counter = 0
+
+    return incumbent, next_node, new_assignment, counter
+
+def append_assignment(current_assignment, next_node, part):
     ''' This function amends a current assignment by adding one node to one of
     the partitions. In order to make sure a new part of the memory is used and
     the recursion algorithm runs flawlessly a for loop is used to make a deep
@@ -19,59 +41,84 @@ def append_assignment(current_assignment, node, part):
             new_assignment[key].append(node)
 
     # Now amend the separate copy with the new assignment:
-    new_assignment[part].append(node)
+    new_assignment[part].append(next_node)
 
     return new_assignment
 
-def gen_next_node(current_assignment):
-    ''' Based on the following paper:
 
-    W. W. Hager, D. T. Phan, and H. Zhang. An Exact Algorithm for
-    Graph Partitioning. Mathematical Programming, 137(1-2):531–556, 2013.
+def BnB(current_assignment, next_node, incumbent, chip, counter):
 
-    The order of visiting nodes can simply be based on the weight of the edges
-    adjacent to that node. Here we can replace this by the degree of the node.
-    '''
+    #print 'Node:', next_node, '@cost:', incumbent['cost'] ,'...'
 
-def lower_bound():
-    
-
-def BnB(current_assignment, next_node, incumbent, chip):
-    if next_node == null: #Currently at a leaf
-
+    if next_node == None: #Currently at a leaf
+        counter += 1
         cost = chip.compute_cost(current_assignment)
 
         if cost < incumbent['cost']:
+            print 'cost:' , cost , '@ node:', counter
             incumbent = {'bisection': current_assignment, 'cost': cost}
 
+        return incumbent, counter
+    else:
+        '''Bounding -----------------------------------------------------'''
+        # Given a partial solution calculate the lower bound of the current
+        # branch:
+        x_bound = chip.compute_partial_cost(current_assignment)
+        #print 'x bound is:', x_bound , '@ counter:', counter
+
+        '''Branching ----------------------------------------------------'''
+        if x_bound < incumbent['cost']:
+            #print 'node is:' , next_node
+            '''Left branch'''
+            # Expand the current assignment by appending the next_node to
+            # the left Partition and call it temp_new_assignment:
+            temp_new_assignment = append_assignment(current_assignment, \
+            next_node, 'left')
+
+            # Find the node after next_node and call it temp_next_node:
+            temp_next_node = chip.gen_next_node(next_node)
+
+            # Call the BnB with the current updates to the left partition:
+            incumbent, counter = BnB(temp_new_assignment, temp_next_node,\
+            incumbent, chip, counter)
+
+
+            '''Right branch'''
+            # Expand the current assignment by appending the next_node to
+            # the right Partition and call it temp_new_assignment:
+            temp_new_assignment = append_assignment(current_assignment, \
+            next_node, 'right')
+
+            # Find the node after next_node and call it temp_next_node:
+            temp_next_node = chip.gen_next_node(next_node)
+
+            # Call the BnB with the current updates to the right partition:
+            incumbent, counter = BnB(temp_new_assignment, temp_next_node,\
+            incumbent, chip, counter)
+
         else:
-            '''Bounding -----------------------------------------------------'''
-            # Given a partial solution calculate the lower bound of the current
-            # branch:
-            x_bound = ???
 
-            '''Branching ----------------------------------------------------'''
-            if x_bound < incumbent:
-                '''Left branch'''
-                # Expand the current assignment by appending the next_node to
-                # the left Partition and call it temp_new_assignment:
-                temp_new_assignment = append_assignment(current_assignment, \
-                next_node, 'left')
+            #print 'branch pruned.'
 
-                # Find the node after next_node and call it temp_next_node:
-                temp_next_node =
+            num_assigned_nodes = len(current_assignment['left'])+\
+            len(current_assignment['right'])
 
-                # Call the BnB with the current updates to the left partition:
-                BnB(temp_new_assignment, temp_next_node, incumbent)
+            counter += 2 **(chip.num_nodes - num_assigned_nodes)
 
 
-                '''Right branch'''
-                # Expand the current assignment by appending the next_node to
-                # the right Partition and call it temp_new_assignment:
-                temp_new_assignment = append_assignment(current_assignment, \
-                next_node, 'right')
+    return incumbent, counter
 
-                # Find the node after next_node and call it temp_next_node:
 
-                # Call the BnB with the current updates to the right partition:
-                BnB(temp_new_assignment, temp_next_node, incumbent)
+if __name__ =="__main__":
+
+    import load as LD
+
+    input_adress = 'Examples/cm150a.txt'
+
+    chip1 = LD.load_input(input_adress, verbose =1)
+
+    incumbent, next_node, new_assignment, counter = initialize(chip1)
+
+    solution = BnB(new_assignment, next_node, incumbent, chip1, counter)
+
+    print solution
