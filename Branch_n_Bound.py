@@ -1,55 +1,86 @@
-def initialize(chip, max_iter):
+def initialize(chip, num_random_samples):
 
     from random import shuffle, choice
     from numpy import floor
 
-    temp_list = range(chip.num_nodes)
+    sample = 0
+    best_assignment = {'left': [],'right': []}
+    best_cost = chip.num_hyper_edges * 10**2
 
-    shuffle(temp_list)
+    while sample < num_random_samples:
 
-    half_mark = int(floor((chip.num_nodes)*1.0/2.0))
+        sample += 1
 
-    new_assignment = {'left': [],'right': []}
+        temp_list = range(chip.num_nodes)
 
-    random_assignment = {'left': temp_list[0:half_mark],\
-    'right': temp_list[half_mark:]}
+        shuffle(temp_list)
 
-    cost = chip.compute_cost(random_assignment)
+        half_mark = int(floor((chip.num_nodes)*1.0/2.0))
 
-    random_iter = 0
+        random_assignment = {'left': temp_list[0:half_mark],\
+        'right': temp_list[half_mark:]}
 
-    while random_iter < max_iter:
-        left_node = choice(random_assignment['left'])
-        right_node = choice(random_assignment['right'])
+        # A stochastic greedy descent:
+        for random_corrections in range(half_mark**2):
+            node_left = choice(random_assignment['left'])
+            node_right = choice(random_assignment['right'])
 
-        random_assignment['left'].remove(left_node)
-        random_assignment['left'].append(right_node)
+            delta = chip.swap_delta_cost(random_assignment,\
+            node_left, node_right)
 
-        random_assignment['right'].remove(right_node)
-        random_assignment['right'].append(left_node)
+            if delta < 0:
+                random_assignment['left'].remove(node_left)
+                random_assignment['right'].remove(node_right)
 
-        temp_cost = chip.compute_cost(random_assignment)
+                random_assignment['left'].append(node_right)
+                random_assignment['right'].append(node_left)
 
-        if temp_cost > cost:
-            random_assignment['left'].remove(right_node)
-            random_assignment['left'].append(left_node)
+        # Steepest Descent:
+        while True:
 
-            random_assignment['right'].remove(left_node)
-            random_assignment['right'].append(right_node)
-        else:
-            cost = temp_cost
+            steepest_delta = 0
+            steepest_left_node = -1
+            steepest_right_node = -1
 
-        random_iter += 1
+            for node_left in random_assignment['left']:
+                for node_right in random_assignment['right']:
+
+                    delta = chip.swap_delta_cost(random_assignment,\
+                    node_left, node_right)
+
+                    if delta < steepest_delta:
+                        steepest_delta = delta
+                        steepest_left_node = node_left
+                        steepest_right_node = node_right
 
 
+            if steepest_left_node != -1:
+
+                random_assignment['left'].remove(steepest_left_node)
+                random_assignment['right'].remove(steepest_right_node)
+
+                random_assignment['left'].append(steepest_right_node)
+                random_assignment['right'].append(steepest_left_node)
+
+            else:
+                break
+
+        cost = chip.compute_cost(random_assignment)
 
 
+        if cost < best_cost:
+            best_assignment['left']  = [x for x in random_assignment['left']]
+            best_assignment['right'] = [x for x in random_assignment['right']]
+            best_cost = cost
 
-    next_node = chip.gen_next_node(None)
+    incumbent = {'bisection': best_assignment, 'cost': best_cost}
 
-    incumbent = {'bisection': random_assignment, 'cost': cost}
+    next_node_first = chip.gen_next_node(None)
 
-    print 'Initial bisection cost:', incumbent['cost']
+    new_assignment = {'left': [next_node_first],'right': []}
+
+    next_node = chip.gen_next_node(next_node_first)
+
     counter = 0
 
     return incumbent, next_node, new_assignment, counter

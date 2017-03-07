@@ -14,8 +14,17 @@ def run_directory(directory, heuristic, verbose, prune_info):
 
             loaded_chip = LD.load_input(file_address, verbose =1)
 
+            print 'Random Sampling + Steepest Descent ...',
+
+            time01 = time.time()
+
             incumbent, next_node, new_assignment, counter =\
             BB.initialize(loaded_chip, heuristic)
+
+            time02 = time.time()
+
+            print 'Done in ', time02-time01, 'seconds'
+            print 'Initial bisection cost:', incumbent['cost']
 
             print 'Branch and Bound started ...'
 
@@ -26,17 +35,18 @@ def run_directory(directory, heuristic, verbose, prune_info):
 
             time2 = time.time()
 
+
+
+            print 'Branch and Bound finished in', time2-time1, 'seconds.'
             print '.'*80
-            if counter == 2**loaded_chip.num_nodes:
-                print 'Branch and Bound finished in', time2-time1, 'seconds.'
-                print 'Optimal solution cost:', solution['cost']
-                if verbose > 1:
-                    loaded_chip.draw_partition(solution['bisection'])
-            else:
-                print 'Warning! for some reason some nodes of the decision',
-                print 'tree were not explored (neither pruned nor searched).'
-                print 'Branch and Bound exited in', time2-time1, 'seconds.'
-                print 'Best solution cost:', solution['cost']
+            print 'Optimal solution cost:', solution['cost']
+            print 'Total time:', time2-time1 + time02-time01
+            print '\n'
+
+            if verbose > 1:
+                loaded_chip.draw_partition(solution['bisection'])
+
+
 
 
 
@@ -54,11 +64,10 @@ if __name__ == "__main__":
     print 'NOTE: This algorithm runs over all input files in the',
     print 'Examples folder.'
     print '='*80
-    print 'The algorithm uses a random correction heuristic for',
-    print 'intial bi-partition'
+
 
     heuristic_iterations = \
-    raw_input('>>> Random Correction Heuristic Iterations: ')
+    raw_input('Number of Initial Random Samples: ')
 
     visualize = raw_input('Visualize Final Solution? [Yes/No] ')
     if visualize =='Yes':

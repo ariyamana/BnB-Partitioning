@@ -12,6 +12,47 @@ class chip_graph():
         self.get_order()
         self.get_incident_dict()
 
+    def swap_delta_cost(self, assignment, node_l, node_r):
+
+        affected_hyperedges_index = list(set(self.incident_dict[node_l] + \
+        self.incident_dict[node_r]))
+
+        affected_hyperedges = [self.hyperedge_set[i] \
+        for i in affected_hyperedges_index]
+
+        cost_before = 0
+        cost_after  = 0
+
+        left  = set(assignment['left'])
+        right = set(assignment['right'])
+
+        for hyperedge in affected_hyperedges:
+            if not (set(hyperedge).issubset(left)):
+                if not (set(hyperedge).issubset(right)):
+                    cost_before += 1
+        
+        assignment['left'].remove(node_l)
+        assignment['left'].append(node_r)
+
+        assignment['right'].remove(node_r)
+        assignment['right'].append(node_l)
+
+        left  = set(assignment['left'])
+        right = set(assignment['right'])
+
+        for hyperedge in affected_hyperedges:
+            if not (set(hyperedge).issubset(left)):
+                if not (set(hyperedge).issubset(right)):
+                    cost_after += 1
+
+        assignment['left'].remove(node_r)
+        assignment['left'].append(node_l)
+
+        assignment['right'].remove(node_l)
+        assignment['right'].append(node_r)
+
+        return cost_after - cost_before
+
     def compute_cost(self, assignment):
         cost = 0
 
@@ -43,7 +84,7 @@ class chip_graph():
 
         if abs(len(left)-len(right)) <= self.num_nodes-len(assigned_nodes):
             for hyperedge in self.hyperedge_set:
-                
+
                 sub_edge_assigned = set(hyperedge).intersection(assigned_nodes)
 
                 if len(sub_edge_assigned)>= 2:
