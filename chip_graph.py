@@ -43,11 +43,14 @@ class chip_graph():
 
         if abs(len(left)-len(right)) <= self.num_nodes-len(assigned_nodes):
             for hyperedge in self.hyperedge_set:
-                if len(set(hyperedge).intersection(assigned_nodes))>= 2:
+                
+                sub_edge_assigned = set(hyperedge).intersection(assigned_nodes)
 
-                    if not (set(hyperedge).issubset(left)):
+                if len(sub_edge_assigned)>= 2:
 
-                        if not (set(hyperedge).issubset(right)):
+                    if not (sub_edge_assigned.issubset(left)):
+
+                        if not (sub_edge_assigned.issubset(right)):
 
                             partial_cost += 1
 

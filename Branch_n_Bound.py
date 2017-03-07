@@ -75,7 +75,7 @@ def append_assignment(current_assignment, next_node, part):
     return new_assignment
 
 
-def BnB(current_assignment, next_node, incumbent, chip, counter):
+def BnB(current_assignment, next_node, incumbent, chip, counter, verbose):
 
     #print 'Node:', next_node, '@cost:', incumbent['cost'] ,'...'
 
@@ -93,7 +93,7 @@ def BnB(current_assignment, next_node, incumbent, chip, counter):
         # Given a partial solution calculate the lower bound of the current
         # branch:
         x_bound = chip.compute_partial_cost(current_assignment)
-
+        #print x_bound, current_assignment['left'], current_assignment['right']
         #print 'x bound is:', x_bound , '@ counter:', counter
 
         '''Branching ----------------------------------------------------'''
@@ -110,7 +110,7 @@ def BnB(current_assignment, next_node, incumbent, chip, counter):
 
             # Call the BnB with the current updates to the left partition:
             incumbent, counter = BnB(temp_new_assignment, temp_next_node,\
-            incumbent, chip, counter)
+            incumbent, chip, counter, verbose)
 
 
             '''Right branch'''
@@ -124,11 +124,11 @@ def BnB(current_assignment, next_node, incumbent, chip, counter):
 
             # Call the BnB with the current updates to the right partition:
             incumbent, counter = BnB(temp_new_assignment, temp_next_node,\
-            incumbent, chip, counter)
+            incumbent, chip, counter, verbose)
 
         else:
-
-            #print 'branch pruned.'
+            if verbose > 1:
+                print 'Pruned @ decision tree branch:', counter
 
             num_assigned_nodes = len(current_assignment['left'])+\
             len(current_assignment['right'])
@@ -143,12 +143,12 @@ if __name__ =="__main__":
 
     import load as LD
 
-    input_adress = 'Examples/twocm.txt'
+    input_adress = 'Examples/z4ml.txt'
 
     chip1 = LD.load_input(input_adress, verbose =1)
 
-    incumbent, next_node, new_assignment, counter = initialize(chip1, 300)
+    incumbent, next_node, new_assignment, counter = initialize(chip1, 200)
 
-    solution = BnB(new_assignment, next_node, incumbent, chip1, counter)
+    solution = BnB(new_assignment, next_node, incumbent, chip1, counter, 1)
 
     print solution

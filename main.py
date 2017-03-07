@@ -3,7 +3,7 @@ import os
 import Branch_n_Bound as BB
 import time
 
-def run_directory(directory, heuristic, verbose):
+def run_directory(directory, heuristic, verbose, prune_info):
     os.system('clear')
 
     for filename in os.listdir(directory):
@@ -22,10 +22,11 @@ def run_directory(directory, heuristic, verbose):
             time1 = time.time()
 
             solution, counter = BB.BnB(new_assignment, next_node, incumbent,\
-            loaded_chip, counter)
+            loaded_chip, counter, prune_info)
 
             time2 = time.time()
 
+            print '.'*80
             if counter == 2**loaded_chip.num_nodes:
                 print 'Branch and Bound finished in', time2-time1, 'seconds.'
                 print 'Optimal solution cost:', solution['cost']
@@ -65,4 +66,10 @@ if __name__ == "__main__":
     else:
         verbose = 0
 
-    run_directory(address, int(heuristic_iterations), verbose)
+    Pruning_log = raw_input('Display Pruning Info? [Yes/No] ')
+    if Pruning_log =='Yes':
+        show_prune = 2
+    else:
+        show_prune = 0
+
+    run_directory(address, int(heuristic_iterations), verbose, show_prune)
