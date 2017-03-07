@@ -56,7 +56,7 @@ def load_input(filename, verbose = 0):
     if verbose == 1:
         print 'Number of cells = ',num_cells
         print 'Number of nets = ', num_conns
-        print 'Net list:', net_list
+        #print 'Net list:', net_list
         print '.'*80
 
 

@@ -1,3 +1,7 @@
+from numpy import floor,ceil
+import matplotlib.pyplot as plt
+import networkx as nx
+from itertools import combinations
 
 class chip_graph():
     def __init__(self, num_cells, num_conns, net_list):
@@ -6,6 +10,7 @@ class chip_graph():
         self.hyperedge_set = net_list
         self.get_degrees()
         self.get_order()
+        self.get_incident_dict()
 
     def compute_cost(self, assignment):
         cost = 0
@@ -52,11 +57,6 @@ class chip_graph():
 
         return partial_cost
 
-
-
-
-
-
     def get_degrees(self):
         self.deg_dict = {}
 
@@ -81,9 +81,19 @@ class chip_graph():
         for item in deg_list:
             self.sorted_deg_list.append(item[0])
 
-        print self.sorted_deg_list
+        #print self.sorted_deg_list
 
 
+    def get_incident_dict(self):
+
+        self.incident_dict={}
+
+        for i in range(self.num_hyper_edges):
+            for node in self.hyperedge_set[i]:
+                if node in self.incident_dict.keys():
+                    self.incident_dict[node].append(i)
+                else:
+                    self.incident_dict[node]=[i]
 
     def gen_next_node(self, current_node):
         ''' Based on the following paper:
@@ -106,6 +116,35 @@ class chip_graph():
             next_node = None
 
         return next_node
+
+    def draw_partition(self, assignment):
+
+        G = nx.Graph()
+
+        G.add_nodes_from(range(self.num_nodes))
+
+        for hyper_edge in self.hyperedge_set:
+            #for i in range(len(hyper_edge)-1):
+            #    G.add_edge(hyper_edge[i],hyper_edge[i+1])
+
+            for pair in combinations(set(hyper_edge), 2):
+                G.add_edge(pair[0],pair[1])
+
+        color_list=[]
+        for node in G.nodes():
+            if node in assignment['left']:
+                color_list.append('#07B9F5')
+            else:
+                color_list.append('#F5075A')
+
+        pos=nx.spring_layout(G, dim =2, iterations = 5000)
+
+        nx.draw(G,pos, node_color = color_list, label= range(self.num_nodes))
+        nx.draw_networkx_labels(G, pos, labels=None, font_size=12)
+        plt.show()
+
+
+
 
 if __name__ == "__main__":
 
