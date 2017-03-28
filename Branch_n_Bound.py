@@ -1,26 +1,39 @@
 def initialize(chip, num_random_samples):
+    '''This function initializes the information required for the branch and
+    bound. In particuar it uses a random heuristic to find a good initial
+    partition.
 
+    The random initial partition works based on a random sampling and then
+    post processing.
+    '''
     from random import shuffle, choice
     from numpy import floor
 
+    # Initializing the variables:
     sample = 0
     best_assignment = {'left': [],'right': []}
     best_cost = chip.num_hyper_edges * 10**2
 
+    # loop to create initial random samples:
     while sample < num_random_samples:
 
+        # counter for random samples:
         sample += 1
 
+        # create the list of nodes:
         temp_list = range(chip.num_nodes)
 
+        # shuffle the nodes for a random order:
         shuffle(temp_list)
 
         half_mark = int(floor((chip.num_nodes)*1.0/2.0))
 
+        # split the shuffled list to left and right partitions to create
+        # a random initial partition:
         random_assignment = {'left': temp_list[0:half_mark],\
         'right': temp_list[half_mark:]}
 
-        # A stochastic greedy descent:
+        # A stochastic greedy descent :
         for random_corrections in range(half_mark**2):
             node_left = choice(random_assignment['left'])
             node_right = choice(random_assignment['right'])
